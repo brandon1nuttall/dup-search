@@ -1,13 +1,13 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='dup-search',
     version='0.1.0',
-    py_modules=['dup_search'],
+    packages=find_packages(),
     install_requires=['Pillow'],
     entry_points={
         'console_scripts': [
-            'dup-search=dup_search:main',
+            'dup-search=dup_search.main:main',
         ],
     },
     author='Your Name',
