@@ -1,6 +1,6 @@
 import sys
 
-from image_duplicates import DuplicateDetection
+from .image_duplicates import DuplicateDetection
 
 def main():
     delete_dups = False
