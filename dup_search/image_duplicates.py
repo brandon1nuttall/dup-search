@@ -6,7 +6,7 @@ class DuplicateDetection:
 
     def __init__(
             self, 
-            target: list[str] | str, 
+            target: list[str], 
             hash_size: int=32, 
             delete_dups: bool=False
     ):
@@ -15,49 +15,28 @@ class DuplicateDetection:
         self.delete_dups = delete_dups
 
     def run(self):
-        duplicates = {}
-        if isinstance(self.target, list):
-            for dir in self.target:
-                duplicates[dir] = self.detect(dir)
-        else:
-            duplicates[self.target] = self.detect(self.target)
-
-        for dir, dups in duplicates.items():
-            print(f"\n{len(dups)} duplicates found in {dir}")
-
+        duplicates = self.detect()
+        print(f"\n{len(duplicates)} duplicate(s) found in {len(self.target)} target directories")
         if self.delete_dups:
-            for dir, dups in duplicates.items():
-                inpt = input(f"\nDo you wish to delete {len(dups)} duplicate files from {dir}? Y/N ")
-                if (inpt.strip().lower()) == "y":
-                    self.remove(dups)
-        
-    def detect(self, directory):
+            inpt = (f"Do you wish to delete {len(duplicates)} duplicate images Y/N: ")
+            if inpt.strip().lower() == "y":
+                self.remove(duplicates)
 
-        # img file names inside the target directory
-        images = os.listdir(directory)
+    def detect(self):
+
+        img_paths = self.get_image_paths()
+        print(f"Searching {len(img_paths)} images for duplicates...")
         # all previous hashes
         previous_hashes = {}
         # all duplicate image paths
         duplicates = []
 
-        for image in images:
+        for path in img_paths:
 
-            # File type must be a jpeg or png
-            file_extension = os.path.splitext(image)[-1]
-            acceptable_extensions = [".jpg", ".png", ".jpeg"]
-            if file_extension not in acceptable_extensions:
-                raise TypeError(f"{image} must be a jpeg or png!")
-            
             if os.name == "nt":
-                abs_path = os.path.abspath(directory)
-                # long file path exception (windows only)
-                os_dir = r"\\?\\" + abs_path
-            else:
-                os_dir = directory
-                
-            img_path = os.path.join(os_dir, image)
+                clean_path = path[path.find('C'):]
 
-            with Image.open(img_path) as img:
+            with Image.open(path) as img:
         
                 # creating a hash for the currrent image
                 this_hash = imagehash.average_hash(img, self.hash_size)
@@ -65,21 +44,45 @@ class DuplicateDetection:
                 # if this new hash already exists -> its a duplicate
                 if this_hash in previous_hashes:
 
-                    this_image_path = os.path.join(directory, image)
-                    that_image_path = os.path.join(
-                        directory, previous_hashes[this_hash]
-                    )
+                    this_image_path = clean_path
+                    that_image_path = previous_hashes[this_hash]
                     print(f"Duplicate found between: {this_image_path}" +
                           f" and {that_image_path}")
                     
-                    duplicates.append(img_path)
+                    duplicates.append(path)
                 else:
-                    previous_hashes[this_hash] = image
+                    previous_hashes[this_hash] = clean_path
 
         return duplicates
+    
+    def get_image_paths(self):
+
+        # img file names inside the target directory
+        img_paths = []
+        acceptable_extensions = [".jpg", ".png", ".jpeg"]
+
+        for directory in self.target:
+            images = os.listdir(directory)
+
+            for img in images:
+
+                file_extension = os.path.splitext(img)[-1]
+                if file_extension not in acceptable_extensions:
+                    raise TypeError(f"{img} must be a jpeg or png!")
+                
+                if os.name == "nt":
+                    abs_path = os.path.abspath(directory)
+                    # long file path exception (windows only)
+                    os_dir = r"\\?\\" + abs_path
+                else:
+                    os_dir = directory
+
+                img_paths.append(os.path.join(os_dir, img))
+
+        return img_paths
     
     def remove(self, duplicates):
         for img_path in duplicates:
             os.remove(img_path)
             print(f"{img_path} has been deleted")
-        print(f"{len(duplicates)} have been removed")
+        print(f"{len(duplicates)} have been deleted")

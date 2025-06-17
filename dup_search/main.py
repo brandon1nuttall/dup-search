@@ -1,8 +1,8 @@
 import sys
 
-from .image_duplicates import DuplicateDetection
+from image_duplicates import DuplicateDetection
 
-def main(): 
+def main():
     delete_dups = False
     hash_size = 32
     d_index = None
@@ -32,9 +32,7 @@ def main():
     else:
         target_dirs = args[1:]
 
-    if len(target_dirs) == 1:
-        target_dirs = target_dirs[0]
-    elif len(target_dirs) < 1:
+    if len(target_dirs) < 1:
         raise ValueError("There must be target directories to search through")
 
     detector = DuplicateDetection(target_dirs, hash_size, delete_dups)
