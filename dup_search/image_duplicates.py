@@ -18,7 +18,7 @@ class DuplicateDetection:
         duplicates = self.detect()
         print(f"\n{len(duplicates)} duplicate(s) found in {len(self.target)} target directories")
         if self.delete_dups:
-            inpt = (f"Do you wish to delete {len(duplicates)} duplicate images Y/N: ")
+            inpt = input(f"Do you wish to delete {len(duplicates)} duplicate images Y/N: ")
             if inpt.strip().lower() == "y":
                 self.remove(duplicates)
 
@@ -82,7 +82,12 @@ class DuplicateDetection:
         return img_paths
     
     def remove(self, duplicates):
+
         for img_path in duplicates:
             os.remove(img_path)
-            print(f"{img_path} has been deleted")
-        print(f"{len(duplicates)} have been deleted")
+
+            if os.name == "nt":
+                clean_path = img_path[img_path.find('C'):]
+            print(f"{clean_path} has been deleted")
+
+        print(f"{len(duplicates)} duplicate images have been deleted")
