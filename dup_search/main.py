@@ -35,7 +35,7 @@ def main():
     if len(target_dirs) < 1:
         raise ValueError("There must be target directories to search through")
 
-    detector = DuplicateDetection(target_dirs, hash_size, delete_dups)
+    detector = DuplicateDetection(target_dirs, int(hash_size), delete_dups)
     detector.run()
 
 if __name__ == "__main__":
