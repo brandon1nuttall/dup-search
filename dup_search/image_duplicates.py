@@ -35,6 +35,8 @@ class DuplicateDetection:
 
             if os.name == "nt":
                 clean_path = path[path.find('C'):]
+            else:
+                clean_path = path
 
             with Image.open(path) as img:
         
