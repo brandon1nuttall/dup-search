@@ -90,6 +90,9 @@ class DuplicateDetection:
 
             if os.name == "nt":
                 clean_path = img_path[img_path.find('C'):]
+            else:
+                clean_path = img_path
+    
             print(f"{clean_path} has been deleted")
 
         print(f"{len(duplicates)} duplicate images have been deleted")
